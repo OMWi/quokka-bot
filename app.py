@@ -13,22 +13,26 @@ app = Flask(__name__)
 
 @app.route('/{}'.format(TOKEN), methods=['POST'])
 def respond():
-   # retrieve the message in JSON and then transform it to Telegram object
-   update = telegram.Update.de_json(request.get_json(force=True), bot)
+    # retrieve the message in JSON and then transform it to Telegram object
+    update = telegram.Update.de_json(request.get_json(force=True), bot)
 
 
-   chat_id = update.message.chat.id
-   msg_id = update.message.message_id
-   user_name = update.effective_user.first_name
-
-   # Telegram understands UTF-8, so encode text for unicode compatibility
-   text = update.message.text.encode('utf-8').decode()
+    chat_id = update.message.chat.id
    
-   if text == "/start":
-       bot_welcome = "Hi, " + user_name
-       bot.sendMessage(chat_id=chat_id, text=bot_welcome)
+    user_name = update.effective_user.first_name
 
-   return 'ok'
+    # Telegram understands UTF-8, so encode text for unicode compatibility
+    text = update.message.text.encode('utf-8').decode()
+
+    if text == "/start":
+        welcome_msg = "Hi, " + user_name
+        bot.sendMessage(chat_id=chat_id, text=welcome_msg)
+    elif text == "/dice":
+        bot.send_dice(chat_id)
+    else:
+        bot.sendMessage(chat_id=chat_id, text="huh?")
+
+    return 'ok'
 
 @app.route('/setwebhook', methods=['GET', 'POST'])
 def set_webhook():
