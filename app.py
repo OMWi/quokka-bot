@@ -16,14 +16,16 @@ def respond():
    # retrieve the message in JSON and then transform it to Telegram object
    update = telegram.Update.de_json(request.get_json(force=True), bot)
 
+
    chat_id = update.message.chat.id
    msg_id = update.message.message_id
+   user_name = update.effective_user.first_name
 
    # Telegram understands UTF-8, so encode text for unicode compatibility
    text = update.message.text.encode('utf-8').decode()
    
    if text == "/start":
-       bot_welcome = "hi, there"
+       bot_welcome = "Hi, " + user_name
        bot.sendMessage(chat_id=chat_id, text=bot_welcome)
 
    return 'ok'
