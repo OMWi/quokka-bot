@@ -25,8 +25,11 @@ def respond():
     text = update.message.text.encode('utf-8').decode()
 
     if text == "/start":
+        my_commands = []        
+        my_commands.append(telegram.BotCommand("dice", "randoming"))
+        bot.set_my_commands(my_commands)
         welcome_msg = "Hi, " + user_name
-        bot.sendMessage(chat_id=chat_id, text=welcome_msg)
+        bot.send_message(chat_id=chat_id, text=welcome_msg)
     elif text == "/dice":
         bot.send_dice(chat_id)
     else:
