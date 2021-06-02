@@ -27,6 +27,7 @@ def respond():
     if text == "/start":
         my_commands = []        
         my_commands.append(telegram.BotCommand("dice", "randoming"))
+        bot.send_message(chat_id=chat_id, text = str(my_commands))
         bot.set_my_commands(my_commands)
         welcome_msg = "Hi, " + user_name
         bot.send_message(chat_id=chat_id, text=welcome_msg)
