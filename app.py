@@ -23,6 +23,16 @@ def respond():
     if text == "/start":
         welcome_msg = "Hi, {}. {} now can talk with you.".format(user_name, config.BOT_USERNAME)
         bot.send_message(chat_id=chat_id, text=welcome_msg)
+        # authorisation
+    elif text == "/help":
+        pass
+    elif text == "/user":
+        pass
+    elif text == "/stats":
+        pass
+    elif text == "/test":
+        # some magic
+        pass
     else:
         bot.sendMessage(chat_id=chat_id, text="huh?")
 
