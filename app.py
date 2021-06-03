@@ -33,6 +33,8 @@ def respond():
     elif text == "/test":
         # some magic
         pass
+    elif text == "/db":
+        pass
     else:
         bot.sendMessage(chat_id=chat_id, text="huh?")
 
