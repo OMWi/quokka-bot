@@ -1,6 +1,8 @@
 from flask import Flask, request
 import telegram
-from telebot.config import bot_token, bot_user_name,URL
+from telebot.credentials import bot_token, bot_user_name,URL
+from telebot.mastermind import get_response
+
 
 global bot
 global TOKEN
@@ -14,7 +16,9 @@ def respond():
     # retrieve the message in JSON and then transform it to Telegram object
     update = telegram.Update.de_json(request.get_json(force=True), bot)
 
-    chat_id = update.message.chat.id   
+
+    chat_id = update.message.chat.id
+   
     user_name = update.effective_user.first_name
 
     # Telegram understands UTF-8, so encode text for unicode compatibility
@@ -23,9 +27,12 @@ def respond():
     if text == "/start":
         my_commands = []        
         my_commands.append(telegram.BotCommand("dice", "randoming"))
+        bot.send_message(chat_id=chat_id, text = str(my_commands))
         bot.set_my_commands(my_commands)
         welcome_msg = "Hi, " + user_name
         bot.send_message(chat_id=chat_id, text=welcome_msg)
+    elif text == "/dice":
+        bot.send_dice(chat_id)
     else:
         bot.sendMessage(chat_id=chat_id, text="huh?")
 
