@@ -1,6 +1,7 @@
 import mysql.connector
+from models import *
 
-# todo: fix varchar lens here
+# todo: fix varchar lens here  
 
 TABLES = {}
 TABLES["words"] = (
@@ -28,26 +29,45 @@ TABLES["users"] = (
     "  'primary key (id));"
 )
 
-class DB_handler:
 
+def create_connection(hostname:str, user:str, password:str, database:str):
     connection = None
-    
-    def __init__(self, host:str, db:str, user:str, password:str) -> None:
-        self.hostname = host
-        self.database = db
-        self.user = user
-        self.password = password
+    try:
+        connection = mysql.connector.connect(
+            host=hostname, user=user,
+            password=password, database=database 
+        )
+    except Exception as e:
+        print(e.with_traceback)
+                
+    return connection
 
-    def create_connection(self):
-        try:
-            connection = mysql.connector.connect(
-                host=self.hostname, user=self.user,
-                password=self.password, database=self.database 
-            )
-        except Exception as e:
-            print(e.with_traceback)
-        
-        return connection
+def get_tables(connection):
+    cursor = connection.cursor()
+    cursor.execute("SHOW TABLES;")
+    res = cursor.fetchall()
+    return res
+
+def get_words(connection):
+    cursor = connection.cursor()
+    cursor.execute("SELECT * FROM words;")
+    res = cursor.fetchall()
+    return res
+
+def describe_table(connection, table_name):
+    cursor = connection.cursor()
+    cursor.execute("DESCRIBE {};".format(table_name))
+    res = cursor.fetchall()
+    return res
+
+def insert_word(connection, word:Word):
+    cursor = connection.cursor()
+    cursor.execute("INSERT INTO words(word_en, word_type) VALUES ('{}', '{}');".format(word.word_en, word.word_type))
+    cursor.commit()
+
+
+    
+    
             
 
     

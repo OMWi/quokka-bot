@@ -3,44 +3,45 @@ from flask import Flask, request
 import requests
 import telegram
 import config
-import logging
-import json
+# import logging
+from req_commands import send_message
+from bot_commands import auth
 
-logging.basicConfig(level=logging.DEBUG)
+# logging.basicConfig(level=logging.DEBUG)
 
 bot = telegram.Bot(token=config.TOKEN)
-
 app = Flask(__name__)
-
-def send_message(chat_id, text):
-    method = "sendMessage"
-    url = "{tg_api}{token}/{method}".format(tg_api=config.TG_API, token=config.TOKEN, method=method)
-    data = {"chat_id" : chat_id, "text" : text}
-    requests.post(url, data=data)
 
 @app.route('/{}'.format(config.TOKEN), methods=['POST'])
 def respond():
-    json_req = request.get_json()
+    json_req = requests.get_json()
     
     update = telegram.Update.de_json(json_req, bot)
 
     chat_id = update.message.chat.id   
     user_name = update.effective_user.first_name
+    user_id = update._effective_user.id
     
     send_message(chat_id, json_req)
+    ans = "Type of your user_id {}. user_id {}.".format(type(user_id), user_id)
+    send_message(chat_id, "")
     
     if update.message.text is None:
-        send_message(chat_id, "None text")
         return "ok"
+
     text = update.message.text    
 
     if text == "/start":
-        welcome_msg = "Hi, {}. {} now can talk with you.".format(user_name, config.BOT_USERNAME)
-        bot.send_message(chat_id=chat_id, text=welcome_msg)
+        ans = "Привет {}. Quokka bot активирован.".format(user_name)
+        # check if chat_id authorized and if not do smth 
+        send_message(chat_id, ans)
+
         # authorisation
     elif text == "/about":
+        ans = "Я Quokka Bot, создан для помощи в изучении english words"
+        send_message(chat_id, ans)
         pass
-    elif text == "/user":
+    elif text == "/login":
         pass
     elif text == "/stats":
         pass
