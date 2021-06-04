@@ -20,7 +20,7 @@ def send_message(chat_id, text):
 @app.route('/{}'.format(config.TOKEN), methods=['POST'])
 def respond():
     update = telegram.Update.de_json(request.get_json(), bot)
-    dict = json.loads(request.get_json())
+    dict = request.get_json()
 
     chat_id = update.message.chat.id   
     user_name = update.effective_user.first_name
