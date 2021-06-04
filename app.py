@@ -21,13 +21,16 @@ def send_message(chat_id, text):
 @app.route('/{}'.format(config.TOKEN), methods=['POST'])
 def respond():
     json_req = request.get_json()
-    if "text" not in json_req.keys():
-        return ""
+    
     update = telegram.Update.de_json(json_req, bot)
 
     chat_id = update.message.chat.id   
     user_name = update.effective_user.first_name
     
+    send_message(chat_id, json_req)
+    
+    if "text" not in json_req.keys():
+        return ""
     text = update.message.text    
 
     if text == "/start":
