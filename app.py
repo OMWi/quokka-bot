@@ -20,17 +20,18 @@ def send_message(chat_id, text):
 @app.route('/{}'.format(config.TOKEN), methods=['POST'])
 def respond():
     update = telegram.Update.de_json(request.get_json(), bot)
+    if "text" not in update.keys():
+        return ""
 
+    text = update.message.text
     chat_id = update.message.chat.id   
     user_name = update.effective_user.first_name
-
     send_message(chat_id, update)
+    send_message(chat_id, text)
     return ""
 
 
-
-    # Telegram understands UTF-8, so encode text for unicode compatibility
-    text = update.message.text.encode('utf-8').decode()
+    
 
     if text == "/start":
         welcome_msg = "Hi, {}. {} now can talk with you.".format(user_name, config.BOT_USERNAME)
