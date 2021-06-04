@@ -4,7 +4,7 @@ import requests
 import telegram
 import config
 # import logging
-from req_commands import send_message
+from req_commands import send_message, send_test
 
 # logging.basicConfig(level=logging.DEBUG)
 
@@ -32,26 +32,22 @@ def respond():
 
     if text == "/start":
         ans = "Привет {}. Quokka bot активирован.".format(user_name)
-        # check if chat_id authorized and if not do smth 
         send_message(chat_id, ans)
-
-        # authorisation
     elif text == "/about":
-        ans = "Я Quokka Bot, создан для помощи в изучении english words"
+        ans = "Я Quokka Bot, создан для помощи в изучении английских слов"
         send_message(chat_id, ans)
-        pass
     elif text == "/login":
+        pass
+    elif text == "/register":
         pass
     elif text == "/stats":
         pass
     elif text == "/test":
-        # some magic
-        pass
+        send_test(chat_id)
     elif text == "/db":
         pass
     else:
         bot.sendMessage(chat_id=chat_id, text="huh?")
-
     return "ok"
 
 
