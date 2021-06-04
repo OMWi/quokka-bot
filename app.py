@@ -4,7 +4,8 @@ import requests
 import telegram
 import config
 # import logging
-from req_commands import send_message, send_test
+from req_commands import send_message
+from bot_commands import send_test
 
 # logging.basicConfig(level=logging.DEBUG)
 
