@@ -1,7 +1,9 @@
 from flask import Flask, request
+import requests
 import telegram
 import config
 import logging
+import json
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -9,18 +11,24 @@ bot = telegram.Bot(token=config.TOKEN)
 
 app = Flask(__name__)
 
+def send_message(chat_id, text):
+    method = "sendMessage"
+    url = "{tg_api}{token}/{method}".format(tg_api=config.TG_API, token=config.TOKEN, method=method)
+    data = {"chat_id" : chat_id, "text" : text}
+    requests.post(url, data=data)
+
 @app.route('/{}'.format(config.TOKEN), methods=['POST'])
 def respond():
-    # retrieve the message in JSON and then transform it to Telegram object
-
-    update = telegram.Update.de_json(request.get_json(force=True), bot)
-    msg = update.message
-    if msg == None:
-        return ""
-
+    update = telegram.Update.de_json(request.get_json(), bot)
+    dict = json.loads(request.get_json())
 
     chat_id = update.message.chat.id   
     user_name = update.effective_user.first_name
+
+    send_message(chat_id, dict)
+    return ""
+
+
 
     # Telegram understands UTF-8, so encode text for unicode compatibility
     text = update.message.text.encode('utf-8').decode()
@@ -29,7 +37,7 @@ def respond():
         welcome_msg = "Hi, {}. {} now can talk with you.".format(user_name, config.BOT_USERNAME)
         bot.send_message(chat_id=chat_id, text=welcome_msg)
         # authorisation
-    elif text == "/help":
+    elif text == "/about":
         pass
     elif text == "/user":
         pass

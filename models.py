@@ -9,6 +9,7 @@ class Meaning:
         self.word_id = word_id
 
 class Users:
-    def __init__(self, user_id:str, role:str) -> None:
+    def __init__(self, user_id:str, role:str, status:str) -> None:
         self.user_id = user_id
         self.role = role
+        self.status = status
