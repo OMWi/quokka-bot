@@ -20,11 +20,11 @@ def respond():
 
     chat_id = update.message.chat.id   
     user_name = update.effective_user.first_name
-    user_id = update._effective_user.id
+    user_id = update.effective_user.id
     
     send_message(chat_id, json_req)
     ans = "Type of your user_id {}. user_id {}.".format(type(user_id), user_id)
-    send_message(chat_id, "")
+    send_message(chat_id, ans)
     
     if update.message.text is None:
         return "ok"
