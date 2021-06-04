@@ -13,7 +13,7 @@ app = Flask(__name__)
 
 @app.route('/{}'.format(config.TOKEN), methods=['POST'])
 def respond():
-    json_req = requests.get_json()
+    json_req = request.get_json()
     
     update = telegram.Update.de_json(json_req, bot)
 
