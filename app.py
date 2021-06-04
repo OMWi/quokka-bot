@@ -29,8 +29,9 @@ def respond():
     
     send_message(chat_id, json_req)
     
-    if "text" not in json_req.keys():
-        return ""
+    if update.message.text is None:
+        send_message(chat_id, "None text")
+        return "ok"
     text = update.message.text    
 
     if text == "/start":
@@ -51,7 +52,7 @@ def respond():
     else:
         bot.sendMessage(chat_id=chat_id, text="huh?")
 
-    return ''
+    return "ok"
 
 
 
