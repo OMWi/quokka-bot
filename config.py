@@ -1,6 +1,6 @@
 TOKEN = "1895343883:AAHlZsAFC1nQykS--ukjNozP0oTJWcNA7gs"
 BOT_USERNAME = "SirQuokkaBot"
-HOOK = "https://sir-quokka-bot.herokuapp.com/"
+URL = "https://sir-quokka-bot.herokuapp.com/"
 TG_API = "https://api.telegram.org/bot"
 
 DB_HOST = "eu-cdbr-west-01.cleardb.com"
