@@ -1,3 +1,4 @@
+import re
 from flask import Flask, request
 import requests
 import telegram
@@ -19,23 +20,15 @@ def send_message(chat_id, text):
 
 @app.route('/{}'.format(config.TOKEN), methods=['POST'])
 def respond():
-    # update = telegram.Update.de_json(request.get_json(), bot)
-    update = request.get_json()
-    
-
-    
-    chat_id = update.message.chat.id   
-    # user_name = update.effective_user.first_name
-    send_message(chat_id, update)
-
-    if "text" not in update.keys():
+    json_req = request.get_json()
+    if "text" not in json_req.keys():
         return ""
-    text = update.message.text
-    send_message(chat_id, text)
-    return ""
+    update = telegram.Update.de_json(json_req, bot)
 
-
+    chat_id = update.message.chat.id   
+    user_name = update.effective_user.first_name
     
+    text = update.message.text    
 
     if text == "/start":
         welcome_msg = "Hi, {}. {} now can talk with you.".format(user_name, config.BOT_USERNAME)
