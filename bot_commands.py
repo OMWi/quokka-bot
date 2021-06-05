@@ -27,8 +27,7 @@ def logout(chat_id, user_id):
         send_message(chat_id, "Выполнен выход")
 
 def send_test(chat_id):
-    conn = create_connection(config.DB_HOST, config.DB_USERNAME, config.DB_PASSWORD, config.DB_DATABASE)
-    words = get_random_words(conn, 4)
+    words = get_random_words(4)
     msg = "Here are our words: {}".format(words)
     send_message(chat_id, msg)
     
