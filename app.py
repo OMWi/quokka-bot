@@ -1,3 +1,4 @@
+from codecs import register
 from db_handler import create_connection
 import re
 from flask import Flask, request
@@ -49,10 +50,9 @@ def respond():
         ans = "Я Quokka Bot, создан для помощи в изучении английских слов"
         send_message(chat_id, ans)
     elif text == "/login":
-        login(chat_id)
-        pass
+        login(chat_id, user_id)
     elif text == "/register":
-        pass
+        register(chat_id, user_id)
     elif text == "/stats":
         pass
     elif text == "/test":
