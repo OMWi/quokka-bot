@@ -37,6 +37,14 @@ def find_user(user_id):
     connection.close()
     return res
 
+def find_user(username, password):
+    connection = create_connection(config.DB_HOST, config.DB_USERNAME, config.DB_PASSWORD, config.DB_DATABASE)
+    cursor = connection.cursor()
+    cursor.execute("SELECT * FROM users WHERE USERNAME='{}' AND PASSWORD='{}'".format(username, password))
+    res = cursor.fetchall()
+    connection.close()
+    return res
+
 def insert_meaning(meaning:Meaning):
     connection = create_connection(config.DB_HOST, config.DB_USERNAME, config.DB_PASSWORD, config.DB_DATABASE)
     cursor = connection.cursor()

@@ -1,5 +1,4 @@
-from codecs import register
-from db_handler import create_connection
+from db_handler import create_connection, find_user, get_status
 import re
 from flask import Flask, request
 import requests
@@ -7,7 +6,7 @@ import telegram
 import config
 # import logging
 from req_commands import send_message
-from bot_commands import send_test, login   
+from bot_commands import send_test, login, registrate
 
 from models import *
 import db_handler
@@ -36,12 +35,23 @@ def respond():
 
     text = update.message.text  
 
-    if text == "/admin":
-        admin = User(user_id, "admin", chat_id, 0, 1, "omwi", "67936793")
-        db_handler.insert_user(admin)
-        ans = "Вы становитесь админом"
-        send_message(chat_id, ans)
-        return "ok"  
+    if len(find_user(user_id)) > 0:
+        status = get_status(user_id)
+        if status == 1:
+            # something not right here
+            try:
+                login_data = text.split()
+                newUser = User(user_id, "casual", chat_id, 0, 1, login_data[0], login_data[1])
+                db_handler.insert_user(newUser)
+            except Exception:
+                send_message(chat_id, "Упс, что то пошло не так")
+        if status == 2:
+            try:
+                user = find_user()
+                pass
+            except Exception:
+                send_message(chat_id, "Упс, что то пошло не так")            
+
 
     if text == "/start":
         ans = "Привет {}. Quokka bot активирован.".format(user_name)
@@ -51,8 +61,8 @@ def respond():
         send_message(chat_id, ans)
     elif text == "/login":
         login(chat_id, user_id)
-    elif text == "/register":
-        register(chat_id, user_id)
+    elif text == "/registrate":
+        registrate(chat_id, user_id)
     elif text == "/stats":
         pass
     elif text == "/test":
