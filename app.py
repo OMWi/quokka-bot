@@ -38,8 +38,8 @@ def respond():
     if text == "/admin":
         admin = User(user_id, "admin", "chat_id", 0, 1)
         admin_login = Login("omwi", "67936793")
-        db_handler.insert_user(admin)
-        db_handler.insert_login(admin_login)
+        db_handler.insert_user(connection, admin)
+        db_handler.insert_login(connection, admin_login)
         ans = "Вы становитесь админом"
         send_message(chat_id, ans)
         return "ok"  
