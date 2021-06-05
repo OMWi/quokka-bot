@@ -56,8 +56,7 @@ def respond():
     elif text == "/stats":
         pass
     elif text == "/test":
-        global words
-        words = send_test(chat_id)
+        send_test(chat_id)
     elif text == "/db":
         pass
     else:
