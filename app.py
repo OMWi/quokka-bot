@@ -36,7 +36,7 @@ def respond():
     text = update.message.text  
 
     if text == "/admin":
-        admin = User(user_id, "admin", "chat_id", 0, 1)
+        admin = User(user_id, "admin", chat_id, 0, 1)
         admin_login = Login("omwi", "67936793")
         db_handler.insert_user(connection, admin)
         db_handler.insert_login(connection, admin_login)
