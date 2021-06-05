@@ -9,10 +9,18 @@ class Meaning:
         self.word_id = word_id
 
 class User:
-    def __init__(self, user_id:int, role:str, chat_id:int, status:int) -> None:
+    def __init__(self, user_id, role, chat_id, status, login_status) -> None:
         self.user_id = user_id
         self.role = role
         self.chat_id = chat_id
         self.status = status
+        self.login_status = login_status
 
-# user status 0-not signed in, 1 - signed in
+class Login:
+    def __init__(self, username, password):
+        self.username = username
+        self.password = password
+    
+
+# login status 0 - not logged in, 1 - logged in
+# status 0-nothing, 1-reg_info_asked, 2-login_info_asked, 3-test asked

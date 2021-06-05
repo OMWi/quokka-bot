@@ -20,8 +20,9 @@ while True:
     db_handler.insert_meaning(conn, newMeaning)
     print("meaning {} inserted".format(meaning))
     '''
+    '''
     res = db_handler.get_random_words(conn, 4)
     print(res)
-    # admin = User(id, "admin", chat_id, 1)
+    '''
 
     break

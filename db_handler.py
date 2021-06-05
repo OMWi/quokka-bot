@@ -24,6 +24,12 @@ def find_word_id(connection, word_en:str):
     res = cursor.fetchall()
     return res[0][0]
 
+def find_user(connection, user_id):
+    cursor = connection.cursor()
+    cursor.execute("SELECT * FROM users WHERE user_id={}".format(user_id))
+    res = cursor.fetchall()
+    return res
+
 def insert_meaning(connection, meaning:Meaning):
     cursor = connection.cursor()
     cursor.execute("INSERT INTO meanings(word_id, meaning) VALUES ({}, '{}');".format(meaning.word_id, meaning.meaning))
@@ -31,11 +37,27 @@ def insert_meaning(connection, meaning:Meaning):
 
 def insert_user(connection, user:User):
     cursor = connection.cursor()
-    cursor.execute("INSERT INTO users(user_id, role, chat_id, status) VALUES ({}, '{}', {}, {});".format(user.user_id, user.role, user.chat_id, user.status))
+    cursor.execute("INSERT INTO users(user_id, role, chat_id, status, login_status) VALUES ({}, '{}', {}, {}, {});".\
+        format(user.user_id, user.role, user.chat_id, user.status, user.login_status))
     connection.commit()
 
 def get_random_words(connection, amount):
     cursor = connection.cursor()
-    cursor.execute("SELECT * FROM words ORDER BY rand() LIMIT {}".format(amount))
+    cursor.execute("SELECT * FROM words ORDER BY rand() LIMIT {};".format(amount))
     res = cursor.fetchall()
     return res
+
+def set_status(connection, user_id, status:int):
+    cursor = connection.cursor()
+    cursor.execute("UPDATE users PUT status={} WHERE user_id={};".format(status, user_id))
+    connection.commit()
+
+def set_login_status(connection, user_id, login_status:int):
+    cursor = connection.cursor()
+    cursor.execute("UPDATE users PUT login_status={} WHERE user_id={}".format(login_status, user_id))
+    connection.commit()
+
+def insert_login(connection, login:Login):
+    cursor = connection.cursor()
+    cursor.execute("INSERT INTO logins (username, password) VALUES ('{}', '{}');".format(login.username, login.password))
+    connection.commit()
