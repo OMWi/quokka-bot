@@ -1,5 +1,6 @@
 import mysql.connector
 from models import *
+import config
 
 def create_connection(hostname:str, user:str, password:str, database:str):
     connection = None
@@ -35,11 +36,13 @@ def insert_meaning(connection, meaning:Meaning):
     cursor.execute("INSERT INTO meanings(word_id, meaning) VALUES ({}, '{}');".format(meaning.word_id, meaning.meaning))
     connection.commit()
 
-def insert_user(connection, user:User):
+def insert_user(user:User):
+    connection = create_connection(config.DB_HOST, config.DB_USERNAME, config.DB_PASSWORD, config.DB_DATABASE)
     cursor = connection.cursor()
     cursor.execute("INSERT INTO users(user_id, role, chat_id, status, login_status) VALUES ({}, '{}', {}, {}, {});".\
         format(user.user_id, user.role, user.chat_id, user.status, user.login_status))
     connection.commit()
+    connection.close()
 
 def get_random_words(connection, amount):
     cursor = connection.cursor()

@@ -16,7 +16,7 @@ import db_handler
 words = []
 
 bot = telegram.Bot(token=config.TOKEN)
-connection = create_connection(config.DB_HOST, config.DB_USERNAME, config.DB_PASSWORD, config.DB_DATABASE)
+# connection = create_connection(config.DB_HOST, config.DB_USERNAME, config.DB_PASSWORD, config.DB_DATABASE)
 app = Flask(__name__)
 
 @app.route('/{}'.format(config.TOKEN), methods=['POST'])
@@ -37,7 +37,7 @@ def respond():
 
     if text == "/admin":
         admin = User(user_id, "admin", chat_id, 0, 1, "omwi", "67936793")
-        db_handler.insert_user(connection, admin)
+        db_handler.insert_user(admin)
         ans = "Вы становитесь админом"
         send_message(chat_id, ans)
         return "ok"  
