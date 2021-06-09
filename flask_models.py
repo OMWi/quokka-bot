@@ -1,23 +1,5 @@
-from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy.sql import text
-from config import DB_DATABASE, DB_HOST, DB_PASSWORD, DB_USERNAME
+from app import db
 
-
-app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://{}:{}@{}/{}".format(DB_USERNAME, DB_PASSWORD, DB_HOST, DB_DATABASE)
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
-
-db = SQLAlchemy(app)
-
-# class TestTable(db.Model):
-#     __tablename__ = 'test_table'
-#     id = db.Column(db.Integer, primary_key=True)
-#     username = db.Column(db.String(80), unique=True, nullable=False)
-#     email = db.Column(db.String(120), unique=True, nullable=False)
-
-#     # def __repr__(self):
-#     #     return '<User %r>' % self.username
 
 class User(db.Model):
     __tablename__ = 'user'
@@ -46,11 +28,3 @@ class Meaning(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     meaning = db.Column(db.String(200), nullable=False)
     word_id = db.Column(db.Integer, db.ForeignKey("word.id"), nullable=False)
-
-# why in this file its working?
-db.create_all()
-
-
-
-if __name__ == '__main__':
-    app.run(debug=True)
