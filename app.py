@@ -1,18 +1,15 @@
-import sqlalchemy
-from telegram import replymarkup
-from telegram.replykeyboardremove import ReplyKeyboardRemove
-from db_handler import *
 from flask import Flask, request
-from flask_sqlalchemy import SQLAlchemy
 import telegram
-from config import *
 import logging
-from req_commands import send_message
-from bot_commands import *
-from models import *
-from telegram.ext import ConversationHandler, MessageHandler, Filters
-from telegram import ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup
-from flask_models import *
+
+from models import db, User, Account, Word, Meaning
+from config import TOKEN, 
+from bot_commands import 
+
+# from telegram import replymarkup
+# from telegram.replykeyboardremove import ReplyKeyboardRemove
+# from telegram.ext import ConversationHandler, MessageHandler, Filters
+# from telegram import ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
@@ -22,8 +19,8 @@ bot = telegram.Bot(token=TOKEN)
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://{}:{}@{}/{}".format(DB_USERNAME, DB_PASSWORD, DB_HOST, DB_DATABASE)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
-db = SQLAlchemy(app)
-db.create_all()
+with app.app_context():
+    db.create_all()
 
 @app.route('/{}'.format(TOKEN), methods=['POST'])
 def respond():
@@ -44,11 +41,15 @@ def respond():
         return "ok"
 
 
+    new_user = User(1, 2, "3", 4, 5)
+    bot.send_message(chat_id=chat_id, text="Adding test new user")
+    db_commands.insert_user(new_user)  
+    
     text = update.message.text  
 
     user = find_user_by_id(user_id)
-    send_message(chat_id, "Your entry in db:\ntype:{}\nuser:{}".format(type(user), user))
-    send_message(chat_id, "Started checking status")
+    bot.send_message(chat_id=chat_id, text="Your entry in db:\ntype:{}\nuser:{}".format(type(user), user))
+    bot.send_message(chat_id=chat_id, text="Started checking status")
     if len(user) > 0:
         user_statuses = get_status(user_id)
         status = 0
@@ -61,34 +62,34 @@ def respond():
             try:
                 login_data = text.split()
                 if len(login_data) < 2:
-                    send_message(chat_id, "Вы неправильно ввели данные, попробуйте еще раз")
+                    bot.send_message(chat_id=chat_id, text="Вы неправильно ввели данные, попробуйте еще раз")
                 else:
                     if len(find_user_by_data(login_data[0], user_id)) > 0:
-                        send_message(chat_id, "Ошибка. У вас уже есть аккаунт с таким именем")
+                        bot.send_message(chat_id=chat_id, text="Ошибка. У вас уже есть аккаунт с таким именем")
                     else:
                         update_user_data(user_id, "None", login_data[0], login_data[1])
                         update_user_status(user_id, login_data[0], 0)
                         update_user_login_status(user_id, login_data[0], 1)                    
-                        send_message(chat_id, "Вы успешно зарегистрированы")
+                        bot.send_message(chat_id=chat_id, text="Вы успешно зарегистрированы")
             except Exception:
-                send_message(chat_id, "Упс, что то пошло не так")
+                bot.send_message(chat_id=chat_id, text="Упс, что то пошло не так")
             return "ok"
         if status == 2:
             try:
                 pass
             except Exception:
-                send_message(chat_id, "Упс, что то пошло не так")         
+                bot.send_message(chat_id=chat_id, text="Упс, что то пошло не так")         
         if status == 3:
             pass   
 
-    send_message(chat_id, "Ended checking status")
+    bot.send_message(chat_id=chat_id, text="Ended checking status")
 
     if text == "/start":
         ans = "Привет {}. Quokka bot активирован.".format(user_name)
-        send_message(chat_id, ans)
+        bot.send_message(chat_id=chat_id, text=ans)
     elif text == "/about":
         ans = "Я Quokka Bot, создан для помощи в изучении английских слов"
-        send_message(chat_id, ans)
+        bot.send_message(chat_id=chat_id, text=ans)
     elif text == "/login":
         login(chat_id, user_id)
     elif text == "/registrate":
@@ -100,7 +101,7 @@ def respond():
     elif text == "/test":
         send_test(chat_id)
     elif text == "/db":
-        send_message(chat_id, "DB command recognized")
+        bot.send_message(chat_id=chat_id, text="DB command recognized")
         users = read_users()
         users_str = ""
         for user in users:
@@ -113,9 +114,9 @@ def respond():
         words_str = ""
         for word in words:
             words_str += "{}\n".format(word)
-        send_message(chat_id, "Users:\n{}".format(users_str))
-        send_message(chat_id, "Words:\n{}".format(words_str))
-        send_message(chat_id, "Meanings:\n{}".format(meanings_str))        
+        bot.send_message(chat_id=chat_id, text="Users:\n{}".format(users_str))
+        bot.send_message(chat_id=chat_id, text="Words:\n{}".format(words_str))
+        bot.send_message(chat_id=chat_id, text="Meanings:\n{}".format(meanings_str))        
     else:
         bot.sendMessage(chat_id=chat_id, text="huh?")
     return "ok"
@@ -133,10 +134,5 @@ def set_webhook():
 def index():
     return "Quokka bot homepage"
 
-@app.route("/createtables")
-def create_tables():
-    db.create_all()
-
-
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()

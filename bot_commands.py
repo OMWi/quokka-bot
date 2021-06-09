@@ -1,20 +1,26 @@
-from req_commands import send_message
-from db_handler import *
-from models import User
+from app import bot
+from models import db, User, Account, Word, Meaning
+
 
 def registrate(chat_id, user_id):    
-    send_message(chat_id, "Введите username и password через пробел")    
-    if len(find_user_by_data("None", user_id)) == 0:
-        newUser = User(user_id, "casual", chat_id, 1, 0, "None", "None")
-        insert_user(newUser)
-    
+    user = User.query.filter_by(user_id = user_id)     
+    if user is None:
+        bot.send_message(chat_id=chat_id, text="Введите логин и пароль через пробел") 
+        newUser = User(user_id, "user", 2)
+        db.session.add(newUser)
+        db.session.commit()
+    else:
+        if user.login_status == 1:
+            bot.send_message(chat_id=chat_id, text="Для регистрации нового аккаунта выйдите из текущего")
 
 
 def login(chat_id, user_id):
+    user = User.query.filter_by(user_id = user_id)
+    
     if len(find_user_by_id(user_id)) == 0:
-        send_message(chat_id, "Вы не зарегестрированы")
+        bot.send_message(chat_id=chat_id, text="Вы не зарегестрированы")
         return;
-    send_message(chat_id, "Введите username password через пробел")
+    bot.send_message(chat_id=chat_id, text="Введите username password через пробел")
     update_user_status(user_id, 2)
 
 def logout(chat_id, user_id):
@@ -27,13 +33,13 @@ def logout(chat_id, user_id):
             username = elem[1]
             break
     if login_status == 0:
-        send_message(chat_id, "У вас не выполнен вход в аккаунт")
+        bot.send_message(chat_id=chat_id, text="У вас не выполнен вход в аккаунт")
     else:
         update_user_login_status(user_id, username, 0)
-        send_message(chat_id, "Выполнен выход")
+        bot.send_message(chat_id=chat_id, text="Выполнен выход")
 
 def send_test(chat_id):
     words = get_random_words(4)
     msg = "Here are our words:\n {}".format(words)
-    send_message(chat_id, msg)
+    bot.send_message(chat_id=chat_id, text=msg)
     
