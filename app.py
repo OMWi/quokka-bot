@@ -1,124 +1,159 @@
 from flask import Flask, request
 import telegram
+from telegram import ReplyKeyboardMarkup
 import logging
 
 from models import db, User, Account, Word, Meaning
-from config import TOKEN, 
-from bot_commands import 
-
+from config import TOKEN, URL, DB_DATABASE, DB_HOST, DB_PASSWORD, DB_USERNAME
+from bot_commands import *
+from admin_commands import *
 # from telegram import replymarkup
 # from telegram.replykeyboardremove import ReplyKeyboardRemove
 # from telegram.ext import ConversationHandler, MessageHandler, Filters
 # from telegram import ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup
 
+
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
 )
 logger = logging.getLogger(__name__)
+
 bot = telegram.Bot(token=TOKEN)
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "mysql+pymysql://{}:{}@{}/{}".format(DB_USERNAME, DB_PASSWORD, DB_HOST, DB_DATABASE)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+db.init_app(app)
 with app.app_context():
     db.create_all()
+
 
 @app.route('/{}'.format(TOKEN), methods=['POST'])
 def respond():
     json_req = request.get_json()    
     update = telegram.Update.de_json(json_req, bot)
     chat_id = update.message.chat.id   
-    user_name = update.effective_user.first_name
     user_id = update.effective_user.id
-    # try:            
-    #     reply_keyboard = [["Option 1", "Option 2", "Option 3"]]
-    #     bot.sendMessage(chat_id=chat_id, text="Hello, here are our options:", reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
-    # except Exception as e:
-    #     bot.send_message(chat_id=chat_id, text=e.with_traceback)
+    username = update.effective_user.first_name
 
-    # bot.send_message(chat_id=chat_id, text="Removing reply keyboard", reply_markup=ReplyKeyboardRemove())
-    
     if update.message.text is None:
+        bot.send_message(chat_id=chat_id, text="Что это такое!?")
         return "ok"
-
-
-    new_user = User(1, 2, "3", 4, 5)
-    bot.send_message(chat_id=chat_id, text="Adding test new user")
-    db_commands.insert_user(new_user)  
     
     text = update.message.text  
+    user = User.query.filter_by(user_id=user_id).first()
+    account = Account.query.filter(Account.users.any(user_id=user_id)).filter_by(account_status=1).first()
 
-    user = find_user_by_id(user_id)
-    bot.send_message(chat_id=chat_id, text="Your entry in db:\ntype:{}\nuser:{}".format(type(user), user))
-    bot.send_message(chat_id=chat_id, text="Started checking status")
-    if len(user) > 0:
-        user_statuses = get_status(user_id)
-        status = 0
-        for elem in user_statuses:
-            if elem[0] != 0:
-                status = elem[0]
-                break
-        bot.send_message(chat_id=chat_id, text="Your status: {}".format(status))
-        if status == 1:
-            try:
-                login_data = text.split()
-                if len(login_data) < 2:
-                    bot.send_message(chat_id=chat_id, text="Вы неправильно ввели данные, попробуйте еще раз")
-                else:
-                    if len(find_user_by_data(login_data[0], user_id)) > 0:
-                        bot.send_message(chat_id=chat_id, text="Ошибка. У вас уже есть аккаунт с таким именем")
-                    else:
-                        update_user_data(user_id, "None", login_data[0], login_data[1])
-                        update_user_status(user_id, login_data[0], 0)
-                        update_user_login_status(user_id, login_data[0], 1)                    
-                        bot.send_message(chat_id=chat_id, text="Вы успешно зарегистрированы")
-            except Exception:
-                bot.send_message(chat_id=chat_id, text="Упс, что то пошло не так")
+    if user is not None:
+        status = user.user_status
+        if status == 0:
+            pass
+        elif status == 1:
+            username = account.username
+        elif status == 2:
+            registrate_2(bot, chat_id, user_id, text)
             return "ok"
-        if status == 2:
-            try:
-                pass
-            except Exception:
-                bot.send_message(chat_id=chat_id, text="Упс, что то пошло не так")         
-        if status == 3:
-            pass   
-
-    bot.send_message(chat_id=chat_id, text="Ended checking status")
+        elif status == 3:
+            registrate_3(bot, chat_id, user_id, text)
+            return "ok"
+        elif status == 4:
+            registrate_4(bot, chat_id, user_id, text)
+            return "ok"
+        elif status == 11:
+            login_2(bot, chat_id, user_id, text)
+            return "ok"
+        elif status == 12:
+            login_3(bot, chat_id, user_id, text)
+            return "ok"
 
     if text == "/start":
-        ans = "Привет {}. Quokka bot активирован.".format(user_name)
+        ans = "Привет {}. Quokka bot активирован.".format(username)
         bot.send_message(chat_id=chat_id, text=ans)
     elif text == "/about":
         ans = "Я Quokka Bot, создан для помощи в изучении английских слов"
         bot.send_message(chat_id=chat_id, text=ans)
+    elif text == "/info":
+        if user.user_status == 0:
+            bot.send_message(chat_id=chat_id, text="Вы гость")
+        elif user.user_status == 1:
+            bot.send_message(chat_id=chat_id, text="Аккаунт:\nимя - {};\nпочта - {}".format(account.username, account.mail))
+        elif 2 <= user.user_status <= 4:
+            bot.send_message(chat_id=chat_id, text="Вы в процессе регистрации")
+        elif 11 <= user.user_status <= 12:
+            bot.send_message(chat_id=chat_id, text="Вы в процессе входа в аккаунт")
+        elif 100 <= user.user_status <= 200:
+            bot.send_message(chat_id=chat_id, text="Вы властелин смертных душ")
     elif text == "/login":
-        login(chat_id, user_id)
-    elif text == "/registrate":
-        registrate(chat_id, user_id)
+        login_1(bot, chat_id, user_id)
+    elif text == "/register":
+        registrate_1(bot, chat_id, user_id)
     elif text == "/logout":
-        logout(chat_id, user_id)
-    elif text == "/stats":
-        pass
-    elif text == "/test":
-        send_test(chat_id)
-    elif text == "/db":
-        bot.send_message(chat_id=chat_id, text="DB command recognized")
-        users = read_users()
-        users_str = ""
-        for user in users:
-            users_str += "{}\n".format(user)
-        meanings = read_meanings()
-        meanings_str = ""
-        for meaning in meanings:
-            meanings_str += "{}\n".format(meaning)
-        words = read_words()
-        words_str = ""
-        for word in words:
-            words_str += "{}\n".format(word)
-        bot.send_message(chat_id=chat_id, text="Users:\n{}".format(users_str))
-        bot.send_message(chat_id=chat_id, text="Words:\n{}".format(words_str))
-        bot.send_message(chat_id=chat_id, text="Meanings:\n{}".format(meanings_str))        
+        logout(bot, chat_id, user_id)
+    elif text == "/word":
+        word(bot, chat_id, user_id)
     else:
-        bot.sendMessage(chat_id=chat_id, text="huh?")
+        if user is not None and user.role == "admin":
+            status = user.user_status
+            if status == 100:
+                insert_word_2(bot, chat_id, user_id, text)
+                return "ok"
+            elif status == 101:
+                delete_word_2(bot, chat_id, user_id, text)
+                return "ok"
+            elif status == 110:
+                insert_meaning_2(bot, chat_id, user_id, text)
+                return "ok"
+            elif status == 111:
+                delete_meaning_2(bot, chat_id, user_id, text)
+                return "ok"
+
+            if status != 1:
+                bot.send_message(chat_id=chat_id, text="huh?".format(text))
+                return "ok"
+            admin_keyboard = [
+                ["Add new word", "Delete word", "Show all words"],
+                ["Add new meaning", "Delete meaning", "Show all meanings"],
+                ["Show all users", "Show all accounts"],
+            ]
+            if text == "/admin":                
+                bot.send_message(chat_id=chat_id, text="Adming commands", reply_markup=ReplyKeyboardMarkup(admin_keyboard, one_time_keyboard=False))
+                return "ok"
+
+            if text == admin_keyboard[0][0]:
+                insert_word_1(bot, chat_id, user_id)
+            elif text == admin_keyboard[0][1]:
+                delete_word_1(bot, chat_id, user_id)
+            elif text == admin_keyboard[0][2]:
+                words = Word.query.all()
+                str = "Words:\n"
+                for elem in words:
+                    str += elem.__str__() + "\n"
+                bot.send_message(chat_id=chat_id, text = str)
+            elif text == admin_keyboard[1][0]:
+                insert_meaning_1(bot, chat_id, user_id)
+            elif text == admin_keyboard[1][1]:
+                delete_meaning_1(bot, chat_id, user_id)
+            elif text == admin_keyboard[1][2]:
+                meanings = Meaning.query.all()
+                str = "Meanings:\n"
+                for elem in meanings:
+                    str += elem.__str__() + "\n"
+                bot.send_message(chat_id=chat_id, text=str)
+            elif text == admin_keyboard[2][0]:
+                users = User.query.all()
+                str = "Users:\n"
+                for elem in users:
+                    str += elem.__str__() + "\n"
+                bot.send_message(chat_id=chat_id, text=str)
+            elif text == admin_keyboard[2][1]:
+                accounts = Account.query.all()
+                str = "Accounts:\n"
+                for elem in accounts:
+                    str += elem.__str__() + "\n"
+                bot.send_message(chat_id=chat_id, text=str)                
+            else:
+                bot.send_message(chat_id=chat_id, text="huh?")
+        else:
+            bot.send_message(chat_id=chat_id, text="Что, что?")
     return "ok"
 
 
