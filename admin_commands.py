@@ -75,6 +75,7 @@ def insert_meaning_2(bot, chat_id, user_id, text):
     if word is None:
         bot.send_message(chat_id=chat_id, text="Слово не найдено")
         user.user_status = 1
+        db.session.commit()
         return
 
     user.user_status = 1

@@ -7,11 +7,6 @@ from models import db, User, Account, Word, Meaning
 from config import TOKEN, URL, DB_DATABASE, DB_HOST, DB_PASSWORD, DB_USERNAME
 from bot_commands import *
 from admin_commands import *
-# from telegram import replymarkup
-# from telegram.replykeyboardremove import ReplyKeyboardRemove
-# from telegram.ext import ConversationHandler, MessageHandler, Filters
-# from telegram import ReplyKeyboardMarkup, InlineKeyboardButton, InlineKeyboardMarkup
-
 
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO

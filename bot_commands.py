@@ -39,8 +39,8 @@ def registrate_3(bot, chat_id, user_id, text):
     account = Account.query.filter(Account.users.any(user_id=user_id)).filter_by(account_status=1).first()
     account.username = name
     user.user_status = 4
-    db.commit()
-    bot.send_message(chat_id=chat_id, text="{}, введите пароль".format(user.username))
+    db.session.commit()
+    bot.send_message(chat_id=chat_id, text="{}, введите пароль".format(account.username))
 
 def registrate_4(bot, chat_id, user_id, text):
     password = text.split()[0]
@@ -48,8 +48,8 @@ def registrate_4(bot, chat_id, user_id, text):
     account = Account.query.filter(Account.users.any(user_id=user_id)).filter_by(account_status=1).first()
     account.password = password
     user.user_status = 1
-    account.account_status = 0
-    db.commit()
+    account.account_status = 1
+    db.session.commit()
     bot.send_message(chat_id=chat_id, text="Поздравляем с успешной регистрацией, {}".format(account.username))
     
 
